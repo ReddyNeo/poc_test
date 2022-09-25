@@ -20,15 +20,15 @@ steps:
     npm run build
   displayName: 'npm install and build'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to artifact'
+- task: Docker@2
   inputs:
-    SourceFolder: '$(System.DefaultWorkingDirectory)'
-    Contents: '**/build/*.?'
-    TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    containerRegistry: 'Docker'
+    repository: 'imagebuild7/poc_test'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
 
-- task: PublishBuildArtifacts@1
+- task: Bash@3
+  displayName: "Removing docker image"
   inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
+    targetType: 'inline'
+    script: 'docker rmi -f $(docker images -q $(dockerImageName))'
